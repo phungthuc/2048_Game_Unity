@@ -1,60 +1,122 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
+using Datas;
 using UnityEngine;
 using DG.Tweening;
 using JetBrains.Annotations;
+using TMPro;
+using Unity.Mathematics;
+using Unity.VisualScripting;
+using UnityEngine.Events;
+using UnityEngine.Serialization;
+using Sequence = DG.Tweening.Sequence;
 
 public class LevelManager : MonoBehaviour
 {
-    [SerializeField] 
-    private GameObject nodePrefab;
+    [SerializeField] private List<LevelData> _levelDatas = new List<LevelData>();
+    [SerializeField] private GameObject _nodePrefab;
+    [SerializeField] private SpriteRenderer _boardPrefab;
+    [SerializeField] private GameObject _blockPrefab;
+    [SerializeField] private TextMeshProUGUI _textLevelCurrent;
 
-    [SerializeField] 
-    private SpriteRenderer boardPrefab;
-
-    [SerializeField] 
-    private GameObject blockPrefab;
-
-    private List<GameObject> listBlockPrefabs = new List<GameObject>();
+    [SerializeField] private List<BlockType> _types;
 
     private int _width = 4;
     private int _height = 4;
-    private bool click = true;
-    private int minX = 0;
-    private int maxX = 3;
-    private int minY = 0;
-    private int maxY = 3;
-        
-    
-    void Start()
+    private bool _click = true;
+    private float _travelTime = 0.2f;
+
+    public UnityEvent Loaded;
+    public UnityEvent WinLevel;
+
+    private List<Node> _nodes;
+    private List<Block> _blocks;
+    private SpriteRenderer _board;
+    private int _currentLevel = 1;
+    private Data _levelData;
+    private Sequence _sequence;
+
+    private bool _isWon = false;
+    private BlockType GetBlocktypeByValue(int value) => _types.First(type => type.Value == value);
+
+    private System.Random Random = new System.Random();
+
+    public void Start()
     {
-        _InitBoards();
-        _InitBlocks();
+        ChangeState(GameState.LoadLevelData);
+        Loaded.Invoke();
+        Resize();
+    }
+
+    public void Resize()
+    {
+        var ratio = Screen.width / Screen.height;
+        Debug.Log(ratio);
+    }
+
+    public void LoadGame()
+    {
+        ChangeState(GameState.GenerateLevel);
+    }
+
+    public void LoadData(string status)
+    {
+        _click = true;
+        _isWon = false;
+        if (status.Equals("nextLevel") && _currentLevel < 3)
+        {
+            _currentLevel++;
+        }
+
+        ChangeState(GameState.LoadLevelData);
+        ChangeState(GameState.GenerateLevel);
+    }
+
+    public void ChangeState(GameState newState)
+    {
+        switch (newState)
+        {
+            case GameState.LoadLevelData:
+                LoadLevelData(_currentLevel);
+                break;
+            case GameState.GenerateLevel:
+                GenerateGrid();
+                break;
+            case GameState.SpawningBlocks:
+                SpawnBlocks(2);
+                break;
+            case GameState.Win:
+                WinLevelCurrent();
+                break;
+            default:
+                break;
+        }
     }
 
     private void OnGUI()
     {
-        if (click)
+        if (_click == true && !_isWon)
         {
             Event e = Event.current;
             switch (e.keyCode)
             {
-                case KeyCode.W:
-                    MoveBlocks("top", TODO);
-                    click = false;
+                case KeyCode.UpArrow:
+                    MoveBlocks(Vector2.up);
+                    _click = false;
                     break;
-                case KeyCode.A:
-                    MoveBlocks("left", TODO);
-                    click = false;
+                case KeyCode.LeftArrow:
+                    MoveBlocks(Vector2.left);
+                    _click = false;
                     break;
-                case KeyCode.S:
-                    MoveBlocks("bottom", TODO);
-                    click = false;
+                case KeyCode.DownArrow:
+                    MoveBlocks(Vector2.down);
+                    _click = false;
                     break;
-                case KeyCode.D:
-                    MoveBlocks("right", TODO);
-                    click = false;
+                case KeyCode.RightArrow:
+                    MoveBlocks(Vector2.right);
+                    _click = false;
                     break;
                 default:
                     break;
@@ -62,58 +124,183 @@ public class LevelManager : MonoBehaviour
         }
     }
 
-    private void TODO()
+    void LoadLevelData(int level)
     {
-        click = true;
+        _levelData = _levelDatas[0].GetDatas(level);
+        Debug.Log("Load Level Data Completed!");
     }
 
-    void _InitBoards()
+    void GenerateGrid()
     {
+        _nodes = new List<Node>();
+        _blocks = new List<Block>();
+        _nodes.Clear();
+        _blocks.Clear();
         for (int x = 0; x < _width; x++)
         {
             for (int y = 0; y < _height; y++)
             {
-                var node = Instantiate(nodePrefab, new Vector2(x, y), Quaternion.identity);
+                var node = Instantiate(_nodePrefab, new Vector2(x, y), Quaternion.identity);
+                var component = node.GetComponent<Node>();
+                _nodes.Add(component);
             }
         }
-        var center = new Vector2((float) _width /2 - 0.5f,(float) _height / 2 -0.5f);
 
-        var board = Instantiate(boardPrefab, center, Quaternion.identity);
-        board.size = new Vector2(_width,_height);
+        var center = new Vector2((float)_width / 2 - 0.5f, (float)_height / 2 - 0.5f);
 
-        Camera.main.transform.position = new Vector3(center.x,center.y,-10);
+        _board = Instantiate(_boardPrefab, center, Quaternion.identity);
+        _board.size = new Vector2(_width, _height);
+
+        Camera.main.transform.position = new Vector3(center.x, center.y, -10);
+        _textLevelCurrent.text = "Level " + _currentLevel;
+
+        ChangeState(GameState.SpawningBlocks);
     }
 
-    void _InitBlocks()
+    void SpawnBlocks(int amount)
     {
-        var block = Instantiate(blockPrefab, new Vector2(0, 0), Quaternion.identity);
-        var block1 = Instantiate(blockPrefab, new Vector2(1, 1), Quaternion.identity);
-        listBlockPrefabs.Add(block);
-        listBlockPrefabs.Add(block1);
-    }
-
-    void MoveBlocks(string direction, [NotNull] TweenCallback onCompleteMoveBlock)
-    {
-        if (onCompleteMoveBlock == null) throw new ArgumentNullException(nameof(onCompleteMoveBlock));
-        foreach (var block in listBlockPrefabs)
+        if (_isWon)
         {
-            switch (direction)
-            {
-                case "top":
-                    block.transform.DOMoveY(maxY, (float)0.25).OnComplete(onCompleteMoveBlock);
-                    break;
-                case "left":
-                    block.transform.DOMoveX(minX, (float)0.25).OnComplete(onCompleteMoveBlock);
-                    break;
-                case "bottom":
-                    block.transform.DOMoveY(minY, (float)0.25).OnComplete(onCompleteMoveBlock);
-                    break;
-                case "right":
-                    block.transform.DOMoveX(maxX, (float)0.25).OnComplete(onCompleteMoveBlock);
-                    break;
-                default:
-                    break;
-            }
+            return;
+        }
+
+        var freeNodes = _nodes.Where(node => node.GetBlock == null)
+            .OrderBy(b => (float)Random.NextDouble()).ToList();
+        foreach (var node in freeNodes.Take(amount))
+        {
+            SpawnBlock(node, (float)Random.NextDouble() > 0.8f ? 4 : 2);
+        }
+
+        if (freeNodes.Count() == 1)
+        {
+            //Game Loss
         }
     }
+
+    void SpawnBlock(Node node, int value)
+    {
+        if (value == _levelData.Max)
+        {
+            ChangeState(GameState.Win);
+        }
+
+        if (_isWon)
+        {
+            return;
+        }
+
+        var block = Instantiate(_blockPrefab, node.Pos, Quaternion.identity, transform);
+        var component = block.GetComponent<Block>();
+        component.Init(GetBlocktypeByValue(value));
+        component.SetBlock(node);
+        _blocks.Add(component);
+        Debug.Log("spawn");
+    }
+
+    void MoveBlocks(Vector2 direction)
+    {
+        if (_blocks == null)
+        {
+            return;
+        }
+
+        var oderByBlocks = _blocks.OrderBy(block => block.Pos.x)
+            .ThenBy(block => block.Pos.y).ToList();
+        if (direction == Vector2.right || direction == Vector2.up) oderByBlocks.Reverse();
+
+        foreach (var oderByBlock in oderByBlocks)
+        {
+            var next = oderByBlock.Node;
+            do
+            {
+                oderByBlock.SetBlock(next);
+
+                var posibleNode = GetNodeAtPosition(next.Pos + direction);
+
+                if (posibleNode != null)
+                {
+                    if (posibleNode.GetBlock != null && posibleNode.GetBlock.CanMerge(oderByBlock.Value))
+                    {
+                        oderByBlock.MergeBlock(posibleNode.GetBlock);
+                    }
+                    else if (posibleNode.GetBlock == null) next = posibleNode;
+                }
+            } while (next != oderByBlock.Node);
+        }
+
+        _sequence = DOTween.Sequence();
+
+        foreach (var oderByBlock in oderByBlocks)
+        {
+            var movePoint = oderByBlock.GetBlock != null ? oderByBlock.GetBlock.Node.Pos : oderByBlock.Node.Pos;
+            _sequence.Insert(0, oderByBlock.transform.DOMove(movePoint, _travelTime));
+        }
+
+        _sequence.OnComplete(() =>
+        {
+            foreach (var oderByBlock in oderByBlocks.Where(block => block.GetBlock != null))
+            {
+                MergeBlocks(oderByBlock.GetBlock, oderByBlock);
+            }
+
+            SpawnBlocks(1);
+            _click = true;
+        });
+    }
+
+    void MergeBlocks(Block baseBlock, Block mergingBlock)
+    {
+        SpawnBlock(baseBlock.Node, baseBlock.Value * 2);
+        RemoveBlock(baseBlock);
+        RemoveBlock(mergingBlock);
+    }
+
+    void RemoveBlock(Block block)
+    {
+        _blocks.Remove(block);
+        Destroy(block.gameObject);
+    }
+
+    void EndGame()
+    {
+        _isWon = true;
+        foreach (var node in _nodes)
+        {
+            Destroy(node.gameObject);
+        }
+
+        for (var i = _blocks.Count - 1; i >= 0; i--)
+        {
+            Destroy(_blocks[i].gameObject);
+        }
+
+        Destroy(_board.gameObject);
+    }
+
+    void WinLevelCurrent()
+    {
+        WinLevel.Invoke();
+        EndGame();
+    }
+
+    Node GetNodeAtPosition(Vector2 pos)
+    {
+        return _nodes.FirstOrDefault(node => node.Pos == pos);
+    }
+}
+
+[Serializable]
+public struct BlockType
+{
+    public int Value;
+    public Color Color;
+}
+
+public enum GameState
+{
+    LoadLevelData,
+    GenerateLevel,
+    SpawningBlocks,
+    Win,
+    Lose
 }

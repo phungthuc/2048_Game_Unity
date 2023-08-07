@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 9201757502827051918}
   - component: {fileID: 280064618571321526}
+  - component: {fileID: -56599762530042325}
   m_Layer: 0
   m_Name: Block
   m_TagString: Block
@@ -85,6 +86,23 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!114 &-56599762530042325
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2504010531459885575}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 990d272375a5443aebd1459a02ca6dfa, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Value: 0
+  Node: {fileID: 0}
+  Merging: 0
+  _renderer: {fileID: 280064618571321526}
+  _text: {fileID: 1305147467556981140}
 --- !u!1 &8062454959928838574
 GameObject:
   m_ObjectHideFlags: 0
@@ -182,7 +200,7 @@ TextMesh:
   m_Font: {fileID: 12800000, guid: 3f63492c8c7a64fab89ceedb1a05cce0, type: 3}
   m_Color:
     serializedVersion: 2
-    rgba: 4280557375
+    rgba: 4290230199
 --- !u!210 &8933918296445702740
 SortingGroup:
   m_ObjectHideFlags: 0
