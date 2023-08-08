@@ -29,7 +29,8 @@ public class LevelManager : MonoBehaviour
     private float _travelTime = 0.2f;
 
     public UnityEvent Loaded;
-    public UnityEvent WinLevel;
+    [FormerlySerializedAs("WinLevel")] public UnityEvent WinLevelEvent;
+    [FormerlySerializedAs("LossLevelEvent")] [FormerlySerializedAs("LossLevel")] public UnityEvent LoseLevelEvent;
 
     private List<Node> _nodes;
     private List<Block> _blocks;
@@ -47,15 +48,7 @@ public class LevelManager : MonoBehaviour
     {
         ChangeState(GameState.LoadLevelData);
         Loaded.Invoke();
-        Resize();
     }
-
-    public void Resize()
-    {
-        var ratio = Screen.width / Screen.height;
-        Debug.Log(ratio);
-    }
-
     public void LoadGame()
     {
         ChangeState(GameState.GenerateLevel);
@@ -89,6 +82,9 @@ public class LevelManager : MonoBehaviour
                 break;
             case GameState.Win:
                 WinLevelCurrent();
+                break;
+            case GameState.Lose:
+                LossLevelCurrent();
                 break;
             default:
                 break;
@@ -173,7 +169,7 @@ public class LevelManager : MonoBehaviour
 
         if (freeNodes.Count() == 1)
         {
-            //Game Loss
+            ChangeState(GameState.Lose);
         }
     }
 
@@ -194,7 +190,6 @@ public class LevelManager : MonoBehaviour
         component.Init(GetBlocktypeByValue(value));
         component.SetBlock(node);
         _blocks.Add(component);
-        Debug.Log("spawn");
     }
 
     void MoveBlocks(Vector2 direction)
@@ -279,7 +274,13 @@ public class LevelManager : MonoBehaviour
 
     void WinLevelCurrent()
     {
-        WinLevel.Invoke();
+        WinLevelEvent.Invoke();
+        EndGame();
+    }
+    
+    void LossLevelCurrent()
+    {
+        LoseLevelEvent.Invoke();
         EndGame();
     }
 
