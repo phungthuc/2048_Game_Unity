@@ -14,8 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _levelDatas:
   - Level: 1
-    Max: 16
+    Max: 512
   - Level: 2
-    Max: 32
+    Max: 1024
   - Level: 3
-    Max: 64
+    Max: 2048
