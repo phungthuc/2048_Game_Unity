@@ -2467,6 +2467,111 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1486957905}
   m_CullTransparentMesh: 1
+--- !u!1 &1630077578
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1630077580}
+  - component: {fileID: 1630077579}
+  m_Layer: 0
+  m_Name: InputManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1630077579
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1630077578}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e617b1d3a5ef2452baa7574790b6ef40, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  minDistanceForSwipe: 20
+  eventMoveRight:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 410524949}
+        m_TargetAssemblyTypeName: LevelManager, Assembly-CSharp
+        m_MethodName: getInput
+        m_Mode: 5
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: right
+          m_BoolArgument: 0
+        m_CallState: 2
+  eventMoveLeft:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 410524949}
+        m_TargetAssemblyTypeName: LevelManager, Assembly-CSharp
+        m_MethodName: getInput
+        m_Mode: 5
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: left
+          m_BoolArgument: 0
+        m_CallState: 2
+  eventMoveUp:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 410524949}
+        m_TargetAssemblyTypeName: LevelManager, Assembly-CSharp
+        m_MethodName: getInput
+        m_Mode: 5
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: up
+          m_BoolArgument: 0
+        m_CallState: 2
+  eventMoveDown:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 410524949}
+        m_TargetAssemblyTypeName: LevelManager, Assembly-CSharp
+        m_MethodName: getInput
+        m_Mode: 5
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: down
+          m_BoolArgument: 0
+        m_CallState: 2
+--- !u!4 &1630077580
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1630077578}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 98.509315, y: 1171.4177, z: -23.207767}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1637574331
 GameObject:
   m_ObjectHideFlags: 0
@@ -2836,3 +2941,4 @@ SceneRoots:
   - {fileID: 1050873280}
   - {fileID: 613657448}
   - {fileID: 781999359}
+  - {fileID: 1630077580}

@@ -30,7 +30,9 @@ public class LevelManager : MonoBehaviour
 
     public UnityEvent Loaded;
     [FormerlySerializedAs("WinLevel")] public UnityEvent WinLevelEvent;
-    [FormerlySerializedAs("LossLevelEvent")] [FormerlySerializedAs("LossLevel")] public UnityEvent LoseLevelEvent;
+
+    [FormerlySerializedAs("LossLevelEvent")] [FormerlySerializedAs("LossLevel")]
+    public UnityEvent LoseLevelEvent;
 
     private List<Node> _nodes;
     private List<Block> _blocks;
@@ -49,6 +51,7 @@ public class LevelManager : MonoBehaviour
         ChangeState(GameState.LoadLevelData);
         Loaded.Invoke();
     }
+
     public void LoadGame()
     {
         ChangeState(GameState.GenerateLevel);
@@ -90,36 +93,6 @@ public class LevelManager : MonoBehaviour
                 break;
         }
     }
-
-    private void OnGUI()
-    {
-        if (_click == true && !_isWon)
-        {
-            Event e = Event.current;
-            switch (e.keyCode)
-            {
-                case KeyCode.UpArrow:
-                    MoveBlocks(Vector2.up);
-                    _click = false;
-                    break;
-                case KeyCode.LeftArrow:
-                    MoveBlocks(Vector2.left);
-                    _click = false;
-                    break;
-                case KeyCode.DownArrow:
-                    MoveBlocks(Vector2.down);
-                    _click = false;
-                    break;
-                case KeyCode.RightArrow:
-                    MoveBlocks(Vector2.right);
-                    _click = false;
-                    break;
-                default:
-                    break;
-            }
-        }
-    }
-
     void LoadLevelData(int level)
     {
         _levelData = _levelDatas[0].GetDatas(level);
@@ -128,7 +101,7 @@ public class LevelManager : MonoBehaviour
 
     void GenerateGrid()
     {
-        _nodes = new List<Node>();
+        _nodes = new List<Node>();      
         _blocks = new List<Block>();
         _nodes.Clear();
         _blocks.Clear();
@@ -190,6 +163,34 @@ public class LevelManager : MonoBehaviour
         component.Init(GetBlocktypeByValue(value));
         component.SetBlock(node);
         _blocks.Add(component);
+    }
+
+    public void getInput(String input)
+    {
+        if (_click == true && !_isWon)
+        {
+            switch (input)
+            {
+                case "right":
+                    MoveBlocks(Vector2.right);
+                    _click = false;
+                    break;
+                case "left":
+                    MoveBlocks(Vector2.left);
+                    _click = false;
+                    break;
+                case "up":
+                    MoveBlocks(Vector2.up);
+                    _click = false;
+                    break;
+                case "down":
+                    MoveBlocks(Vector2.down);
+                    _click = false;
+                    break;
+                default:
+                    break;
+            }
+        }
     }
 
     void MoveBlocks(Vector2 direction)
@@ -277,7 +278,7 @@ public class LevelManager : MonoBehaviour
         WinLevelEvent.Invoke();
         EndGame();
     }
-    
+
     void LossLevelCurrent()
     {
         LoseLevelEvent.Invoke();
